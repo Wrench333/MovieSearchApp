@@ -35,10 +35,15 @@ class MovieAPI {
     }
   }
 
-  Future<Movie> getMovieDetails() async {
+  Future<Movie> getMovieDetails(String id) async {
     try {
       final response = await http
-          .get(Uri.parse('https://smsapp.bits-postman-lab.in/courses')); //TODO: Update this with the correct URL
+          .get(Uri.parse(baseUrl + '?movieid=$id'),headers: {
+        "Type": "get-movie-details",
+        "X-RapidAPI-Key": rapidApiKey,
+        "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
+        "Content-Type": "application/json",
+      }); //TODO: Update this with the correct URL
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);

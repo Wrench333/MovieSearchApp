@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../Data Storage and API Calls/movies_service.dart';
 import '../Models/currentMovies_model.dart';
+import '../Models/movie_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,15 +24,29 @@ class _HomePageState extends State<HomePage> {
     try {
       for (int i = 0; i < 20; i++) { //TODO: Make this dynamic with movieAPI.length using provider
         var result = await movieAPI.getCurrentMovies(i);
-        print('Course List API Response: $result');
+        print('Current Movies List API Response: $result');
         nowShowing.add(result);
       }
       print(nowShowing);
     } catch (e) {
-      print('Error in getting course list: $e');
+      print('Error in getting current movies: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error in getting "Now Showing" Movies: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _fetchMovieDetails(String id) async {
+    try {
+        var result = await movieAPI.getMovieDetails(id);
+        print('Movie Details API Response: $result'); //TODO: Assign result to another variable so that its accessible where needed
+    } catch (e) {
+      print('Error in getting movie details: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error in getting Movie details: $e'),
         ),
       );
     }
