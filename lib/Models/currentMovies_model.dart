@@ -1,19 +1,19 @@
-class Curr_Movies {
+class CurrentMovies {
   String title;
   String year;
   String id;
 
-  Curr_Movies({
+  CurrentMovies({
     required this.title,
     required this.year,
     required this.id,
   });
 
-  factory Curr_Movies.fromJson(Map<String, dynamic> json, int i) {
-    return Curr_Movies(
+  factory CurrentMovies.fromJson(Map<String, dynamic> json, int i) {
+    return CurrentMovies(
       title: json['movie_results'][i]['title'],
       year: json['movie_results'][i]['year'],
-      id: json['movie_results'][i]['id'],
+      id: json['movie_results'][i]['imdb_id'],
     );
   }
 }

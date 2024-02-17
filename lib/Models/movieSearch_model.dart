@@ -1,6 +1,6 @@
 class MovieSearch {
   String title;
-  String year;
+  int year;
   String id;
 
   MovieSearch({
@@ -9,11 +9,11 @@ class MovieSearch {
     required this.id,
   });
 
-  factory MovieSearch.fromJson(Map<String, dynamic> json) {
+  factory MovieSearch.fromJson(Map<String, dynamic> json,int i) {
     return MovieSearch(
-      title: json['title'],
-      year: json['year'],
-      id: json['imdb_id'],
+      title: json['movie_results'][i]['title'],
+      year: json['movie_results'][i]['year'],
+      id: json['movie_results'][i]['imdb_id'],
     );
   }
 }

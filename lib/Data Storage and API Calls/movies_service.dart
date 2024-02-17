@@ -11,22 +11,28 @@ class MovieAPI {
 
   MovieAPI({required this.rapidApiKey});
 
-  Future<Curr_Movies> getCurrentMovies(int i) async { // to get now playing movies for the home page
+  Future<List<CurrentMovies>> getCurrentMovies() async {
+    // to get now playing movies for the home page
     try {
-      final response = await http
-          .get(Uri.parse(baseUrl + "?page=1"),
+      final response = await http.get(
+        Uri.parse(baseUrl + "?page=1"),
         headers: {
           "Type": "get-nowplaying-movies",
           "X-RapidAPI-Key": rapidApiKey,
           "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
           "Content-Type": "application/json",
-        },);
+        },
+      );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final length = data.length;
-        print('$data');
-        return Curr_Movies.fromJson(data, i);
+        List<CurrentMovies> currentMovies = [];
+        for (int i = 0; i < 5; i++) { //TODO: Make this dynamic with movieAPI.length using provider
+          currentMovies.add(CurrentMovies.fromJson(data, i));
+        }
+        print('Here is the response from the API: $data');
+        return currentMovies;
       } else {
         throw Exception(
             'Failed to load movies list, status code: ${response.statusCode}');
@@ -36,10 +42,11 @@ class MovieAPI {
     }
   }
 
-  Future<Movie> getMovieDetails(String id) async { // to get movie specific details to build its respective page
+  Future<Movie> getMovieDetails(String id) async {
+    // to get movie specific details to build its respective page
     try {
-      final response = await http
-          .get(Uri.parse(baseUrl + '?movieid=$id'),headers: {
+      final response =
+          await http.get(Uri.parse(baseUrl + '?movieid=$id'), headers: {
         "Type": "get-movie-details",
         "X-RapidAPI-Key": rapidApiKey,
         "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
@@ -60,21 +67,27 @@ class MovieAPI {
     }
   }
 
-  Future<MovieSearch> getSearchResults(String title) async { // to get movie specific details to build its respective page
+  Future<List<MovieSearch>> getSearchResults(String title) async {
+    // to get movie specific details to build its respective page
     try {
-      final response = await http
-          .get(Uri.parse(baseUrl + '?title=$title'),headers: {
-        "Type": "get-movie-by-title",
+      final response =
+          await http.get(Uri.parse(baseUrl + '?title=$title'), headers: {
+        "Type": "get-movies-by-title",
         "X-RapidAPI-Key": rapidApiKey,
         "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
-        "Content-Type": "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+        'Charset': 'utf-8'
       });
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final length = data.length;
+        List<MovieSearch> searchResults = [];
         print('$data');
-        return MovieSearch.fromJson(data);
+        for (int i =0;i<5;i++){ //TODO: Make this dynamic
+          searchResults.add(MovieSearch.fromJson(data,i));
+        }
+        return searchResults;
       } else {
         throw Exception(
             'Failed to load search results, status code: ${response.statusCode}');
