@@ -52,6 +52,20 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _fetchSearchResults(String query) async {
+    try {
+      var result = await movieAPI.getSearchResults(query);
+      print('Movie Search API Response: $result'); //TODO: Assign result to another variable so that its accessible where needed
+    } catch (e) {
+      print('Error in getting search results: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error in getting search results: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(

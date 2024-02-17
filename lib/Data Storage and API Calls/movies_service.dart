@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../Models/currentMovies_model.dart';
+import '../Models/movieSearch_model.dart';
 import '../Models/movie_model.dart';
 //import './apiKey.txt';
 
@@ -10,7 +11,7 @@ class MovieAPI {
 
   MovieAPI({required this.rapidApiKey});
 
-  Future<Curr_Movies> getCurrentMovies(int i) async {
+  Future<Curr_Movies> getCurrentMovies(int i) async { // to get now playing movies for the home page
     try {
       final response = await http
           .get(Uri.parse(baseUrl + "?page=1"),
@@ -35,7 +36,7 @@ class MovieAPI {
     }
   }
 
-  Future<Movie> getMovieDetails(String id) async {
+  Future<Movie> getMovieDetails(String id) async { // to get movie specific details to build its respective page
     try {
       final response = await http
           .get(Uri.parse(baseUrl + '?movieid=$id'),headers: {
@@ -43,7 +44,7 @@ class MovieAPI {
         "X-RapidAPI-Key": rapidApiKey,
         "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
         "Content-Type": "application/json",
-      }); //TODO: Update this with the correct URL
+      });
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -56,6 +57,30 @@ class MovieAPI {
       }
     } catch (e) {
       throw Exception('Failed to load movie details: $e');
+    }
+  }
+
+  Future<MovieSearch> getSearchResults(String title) async { // to get movie specific details to build its respective page
+    try {
+      final response = await http
+          .get(Uri.parse(baseUrl + '?title=$title'),headers: {
+        "Type": "get-movie-by-title",
+        "X-RapidAPI-Key": rapidApiKey,
+        "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
+        "Content-Type": "application/json",
+      });
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final length = data.length;
+        print('$data');
+        return MovieSearch.fromJson(data);
+      } else {
+        throw Exception(
+            'Failed to load search results, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load search results: $e');
     }
   }
 }
