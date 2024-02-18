@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
     try {
       var result = await movieAPI.getCurrentMovies();
       print('Current Movies List API Response: $result');
-
+      nowShowing = result;
       print(nowShowing);
       setState(() {
         isLoading = false;
@@ -118,8 +118,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     )
                   : Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
+                      child: GridView.builder(
+                        //shrinkWrap: true,
+                        gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: nowShowing.length ?? 0,
                         //TODO: Make this dynamic
@@ -127,8 +128,7 @@ class _HomePageState extends State<HomePage> {
                           final movie = nowShowing[index];
                           return Column(
                             children: [
-                              Opacity(
-                                opacity: 1.0,
+                              Expanded(
                                 child: Container(
                                   margin: const EdgeInsets.all(8.0),
                                   height: 105,
@@ -165,12 +165,12 @@ class _HomePageState extends State<HomePage> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            'Year of Release: ${movie.year}',
+                                            '${movie.year}',
                                             style: const TextStyle(
                                                 color: Colors.white),
                                           ),
                                           Text(
-                                            'Movie ID:${movie.id}',
+                                            '${movie.id}',
                                             style: const TextStyle(
                                                 color: Colors.white),
                                           ),
@@ -182,9 +182,6 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 10.0,
                               ),
                             ],
                           );
