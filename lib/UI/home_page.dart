@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:go_router/go_router.dart';
 import '../Data Storage and API Calls/movies_service.dart';
 import '../Models/currentMovies_model.dart';
 import '../Models/movie_model.dart';
@@ -43,21 +44,6 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         isLoading = false;
       });
-    }
-  }
-
-  Future<void> _fetchMovieDetails(String id) async {
-    try {
-      var result = await movieAPI.getMovieDetails(id);
-      print(
-          'Movie Details API Response: $result'); //TODO: Assign result to another variable so that its accessible where needed
-    } catch (e) {
-      print('Error in getting movie details: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error in getting Movie details: $e'),
-        ),
-      );
     }
   }
 
@@ -129,57 +115,60 @@ class _HomePageState extends State<HomePage> {
                           return Column(
                             children: [
                               Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.all(8.0),
-                                  height: 105,
-                                  padding:
-                                      const EdgeInsets.fromLTRB(23, 18, 8, 18),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        const Color.fromRGBO(52, 152, 219, 0.8),
-                                    borderRadius: BorderRadius.circular(17.36),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        blurRadius: 4,
-                                        color: Color.fromRGBO(0, 0, 0, 1),
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${movie.title}',
-                                        style: const TextStyle(
-                                          fontSize: 18.0,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
+                                child: GestureDetector(
+                                  onTap:() => context.go('/details') ,
+                                  child: Container(
+                                    margin: const EdgeInsets.all(8.0),
+                                    height: 105,
+                                    padding:
+                                        const EdgeInsets.fromLTRB(23, 18, 8, 18),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          const Color.fromRGBO(52, 152, 219, 0.8),
+                                      borderRadius: BorderRadius.circular(17.36),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          blurRadius: 4,
+                                          color: Color.fromRGBO(0, 0, 0, 1),
+                                          offset: Offset(0, 4),
                                         ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            '${movie.year}',
-                                            style: const TextStyle(
-                                                color: Colors.white),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${movie.title}',
+                                          style: const TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          Text(
-                                            '${movie.id}',
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
-                                          SizedBox(
-                                            width: 10.0,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '${movie.year}',
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            Text(
+                                              '${movie.id}',
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            SizedBox(
+                                              width: 10.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

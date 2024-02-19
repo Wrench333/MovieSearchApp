@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../Models/currentMovies_model.dart';
 import '../Models/movieSearch_model.dart';
 import '../Models/movie_model.dart';
+import '../Models/poster_model.dart';
 //import './apiKey.txt';
 
 class MovieAPI {
@@ -88,6 +89,32 @@ class MovieAPI {
           searchResults.add(MovieSearch.fromJson(data,i));
         }
         return searchResults;
+      } else {
+        throw Exception(
+            'Failed to load search results, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load search results: $e');
+    }
+  }
+
+  Future<Poster> getPosters(String id) async {
+    // to get movie specific posters to build its respective page
+    try {
+      final response =
+      await http.get(Uri.parse(baseUrl + '?movieid=$id'), headers: {
+        "Type": "get-movies-images-by-imdb",
+        "X-RapidAPI-Key": rapidApiKey,
+        "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
+        "Content-Type": "application/json;charset=UTF-8",
+        'Charset': 'utf-8'
+      });
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final length = data.length;
+        print('$data');
+        return Poster.fromJson(data);
       } else {
         throw Exception(
             'Failed to load search results, status code: ${response.statusCode}');
