@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/movies_service.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Data Storage and API Calls/apiKeys.dart';
+import '../Data Storage and API Calls/loading_provider.dart';
+import '../Data Storage and API Calls/movies_service.dart';
 import '../Models/movie_model.dart';
-import '../Models/poster_model.dart'; // Assuming you have a widget for carousel slider
+import '../Models/poster_model.dart';
 
 class DetailsPage extends StatefulWidget {
   const DetailsPage({super.key});
@@ -16,7 +19,7 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   MovieAPI movieAPI = MovieAPI(
-      rapidApiKey: '5b203ffa19mshbf72831f459dca4p18370djsnbb14873555e8');
+      rapidApiKey: rapidApiKey);
   Movie movie = Movie(
       title: '',
       tagline: '',
@@ -26,12 +29,16 @@ class _DetailsPageState extends State<DetailsPage> {
       ytKey: '');
   late Poster poster = Poster(poster: '', fanArt: '');
   List<Widget>? slideItems = [];
+  bool isLoading = true;
 
   @override
   initState() {
     super.initState();
-    _fetchMovieDetails('tt1375666'); //TODO: Make the id dynamic
-    _fetchPosters('tt1375666'); //TODO: Make the id dynamic
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final provider = Provider.of<IdProvider>(context,listen: false);
+      _fetchMovieDetails(provider.id);
+      _fetchPosters(provider.id);
+    });
   }
 
   Future<void> _fetchMovieDetails(String id) async {
@@ -40,6 +47,7 @@ class _DetailsPageState extends State<DetailsPage> {
       print('Movie Details API Response: $result');
       setState(() {
         movie = result;
+        isLoading = false;
       });
     } catch (e) {
       print('Error in getting movie details: $e');
@@ -61,6 +69,7 @@ class _DetailsPageState extends State<DetailsPage> {
           Image.network(poster.poster),
           Image.network(poster.fanArt)
         ];
+        isLoading = false;
       });
     } catch (e) {
       print('Error in getting movie posters: $e');
@@ -72,76 +81,113 @@ class _DetailsPageState extends State<DetailsPage> {
     }
   }
 
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new),
-          onPressed: () => context.go('/home'),
+    Size size = MediaQuery.of(context).size;
+    final provider = Provider.of<IdProvider>(context,listen: false);
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.blue,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new),
+            onPressed: () => context.go('/home'),
+          ),
+          title: Text(movie.title?? "Null"),
         ),
-        title: Text(movie.title),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    child: CarouselSlider(
-                      options: CarouselOptions(
-                        aspectRatio: 2.0,
-                        enlargeCenterPage: true,
-                        pageViewKey: PageStorageKey<String>('carousel_slider'),
+        body: SingleChildScrollView(
+          child: isLoading
+              ? Container(
+                  height: size.height,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                    ),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        child: CarouselSlider(
+                          options: CarouselOptions(
+                            aspectRatio: 2.0,
+                            enlargeCenterPage: true,
+                            pageViewKey:
+                                PageStorageKey<String>('carousel_slider'),
+                          ),
+                          items: slideItems,
+                        ),
                       ),
-                      items: slideItems,
-                    ),
+                      SizedBox(height: 8.0),
+                      Row(children: [
+                        Text("Rating:"),
+                        Icon(Icons.star,color: Colors.yellow,),
+                        Icon(Icons.star,color: Colors.yellow,),
+                        Icon(Icons.star,color: Colors.yellow,),
+                        Icon(Icons.star,color: Colors.yellow,),
+                        Icon(Icons.star,color: Colors.yellow,),
+                      ],),
+                      SizedBox(height: 8.0,),
+                      Text(
+                        "Tagline: ${movie.tagline}", //TODO: Make this id dynamic
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      SizedBox(height: 8.0,),
+                      Text(
+                        "Year of Release: ${movie.year ?? "Null"}",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        "Movie ID: ${provider.id}", //TODO: Make this id dynamic
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        "Description:",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                        ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        movie.description ?? "Null",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          _launchInBrowser(Uri.parse(
+                              "https://www.youtube.com/watch?v=${movie.ytKey}" ?? "https://www.youtube.com/"));
+                        },
+                        child: Text(
+                          'Watch the trailer',
+                          style: TextStyle(
+                              color: Colors.blue, fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    "Year of Release: ${movie.year}",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    "Movie ID: id", //TODO: Make this id dynamic
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  SizedBox(height: 16.0),
-                  Text(
-                    "Description:",
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    movie.description,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => launchUrl(Uri.parse(movie.ytKey)),
-                    child: Text(
-                      'Watch the trailer',
-                      style: TextStyle(
-                          color: Colors.blue, fontStyle: FontStyle.italic),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+                ),
         ),
       ),
     );

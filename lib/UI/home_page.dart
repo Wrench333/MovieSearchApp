@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/favourite_provider.dart';
+import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/loading_provider.dart';
+import 'package:provider/provider.dart';
+import '../Data Storage and API Calls/apiKeys.dart';
 import '../Data Storage and API Calls/movies_service.dart';
 import '../Models/currentMovies_model.dart';
 import '../Models/movie_model.dart';
@@ -15,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final controller = TextEditingController();
   MovieAPI movieAPI = MovieAPI(
-      rapidApiKey: '5b203ffa19mshbf72831f459dca4p18370djsnbb14873555e8');
+      rapidApiKey: rapidApiKey);
   List<CurrentMovies> nowShowing = [];
   bool isLoading = true;
 
@@ -64,6 +67,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<IdProvider>(context);
+    final provider2 = Provider.of<FavouriteProvider>(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -106,26 +111,30 @@ class _HomePageState extends State<HomePage> {
                   : Expanded(
                       child: GridView.builder(
                         //shrinkWrap: true,
-                        gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2),
                         physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: nowShowing.length ?? 0,
-                        //TODO: Make this dynamic
+                        itemCount: nowShowing.length,
                         itemBuilder: (context, index) {
                           final movie = nowShowing[index];
                           return Column(
                             children: [
                               Expanded(
                                 child: GestureDetector(
-                                  onTap:() => context.go('/details') ,
+                                  onTap: () {
+                                    provider.idUpdate(movie.id);
+                                    context.go('/details');
+                                  },
                                   child: Container(
-                                    margin: const EdgeInsets.all(8.0),
+                                    margin: const EdgeInsets.all(5.0),
                                     height: 105,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(23, 18, 8, 18),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        23, 18, 8, 18),
                                     decoration: BoxDecoration(
-                                      color:
-                                          const Color.fromRGBO(52, 152, 219, 0.8),
-                                      borderRadius: BorderRadius.circular(17.36),
+                                      color: const Color.fromRGBO(
+                                          52, 152, 219, 0.8),
+                                      borderRadius:
+                                          BorderRadius.circular(17.36),
                                       boxShadow: const [
                                         BoxShadow(
                                           blurRadius: 4,
@@ -167,6 +176,25 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
+                                        Row(
+                                          mainAxisAlignment:MainAxisAlignment.end,
+                                          children: [
+                                            IconButton(
+                                                onPressed: () {
+                                                  provider2
+                                                      .toggleFavourite(movie.title);
+                                                },
+                                                icon: provider2.isExist(movie.title)
+                                                    ? Icon(
+                                                        Icons.favorite,
+                                                        color: Colors.red,
+                                                      )
+                                                    : Icon(
+                                                        Icons.favorite_border,
+                                                        color: Colors.grey,
+                                                      )),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -180,6 +208,10 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
+        /*floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => context.go('/fav'),
+          label: Text('Favourites'),
+        ),*/
       ),
     );
   }

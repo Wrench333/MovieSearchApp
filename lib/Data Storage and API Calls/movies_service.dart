@@ -4,7 +4,6 @@ import '../Models/currentMovies_model.dart';
 import '../Models/movieSearch_model.dart';
 import '../Models/movie_model.dart';
 import '../Models/poster_model.dart';
-//import './apiKey.txt';
 
 class MovieAPI {
   final String rapidApiKey;

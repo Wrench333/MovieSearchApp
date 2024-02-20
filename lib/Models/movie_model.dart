@@ -1,10 +1,10 @@
 class Movie {
-  String title;
-  String tagline;
-  String description;
-  String year;
-  String ageRating;
-  String ytKey;
+  String? title;
+  String? tagline;
+  String? description;
+  String? year;
+  String? ageRating;
+  String? ytKey;
 
   Movie({
     required this.title,
