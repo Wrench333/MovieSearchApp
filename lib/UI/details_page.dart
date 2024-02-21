@@ -6,9 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../Data Storage and API Calls/apiKeys.dart';
 import '../Data Storage and API Calls/loading_provider.dart';
+import '../Data Storage and API Calls/movieDetails_provider.dart';
+import '../Data Storage and API Calls/moviePosters_provider.dart';
 import '../Data Storage and API Calls/movies_service.dart';
-import '../Models/movie_model.dart';
-import '../Models/poster_model.dart';
 
 class DetailsPage extends StatefulWidget {
   const DetailsPage({super.key});
@@ -20,28 +20,30 @@ class DetailsPage extends StatefulWidget {
 class _DetailsPageState extends State<DetailsPage> {
   MovieAPI movieAPI = MovieAPI(
       rapidApiKey: rapidApiKey);
-  Movie movie = Movie(
+  /*Movie movie = Movie(
       title: '',
       tagline: '',
       description: '',
       year: '',
       ageRating: '',
-      ytKey: '');
-  late Poster poster = Poster(poster: '', fanArt: '');
-  List<Widget>? slideItems = [];
-  bool isLoading = true;
+      ytKey: '');*/
+  /*late Poster poster = Poster(poster: '', fanArt: '');*/
+  /*List<Widget>? slideItems = [];*/
+  /*bool isLoading = true;*/
 
   @override
   initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final provider = Provider.of<IdProvider>(context,listen: false);
-      _fetchMovieDetails(provider.id);
-      _fetchPosters(provider.id);
+      final provider1 = Provider.of<MovieProvider>(context,listen: false);
+      final provider2 = Provider.of<MoviePostersProvider>(context,listen: false);
+      provider1.getMovieDetails(provider.id);
+      provider2.getMoviePosters(provider.id);
     });
   }
 
-  Future<void> _fetchMovieDetails(String id) async {
+  /*Future<void> _fetchMovieDetails(String id) async {
     try {
       var result = await movieAPI.getMovieDetails(id);
       print('Movie Details API Response: $result');
@@ -57,9 +59,9 @@ class _DetailsPageState extends State<DetailsPage> {
         ),
       );
     }
-  }
+  }*/
 
-  Future<void> _fetchPosters(String id) async {
+  /*Future<void> _fetchPosters(String id) async {
     try {
       var result = await movieAPI.getPosters(id);
       print('Movie Details API Response: $result');
@@ -79,7 +81,7 @@ class _DetailsPageState extends State<DetailsPage> {
         ),
       );
     }
-  }
+  }*/
 
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
@@ -93,19 +95,20 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final provider = Provider.of<IdProvider>(context,listen: false);
+    final provider1 = Provider.of<MovieProvider>(context);
+    final provider2 = Provider.of<MoviePostersProvider>(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.red,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new),
             onPressed: () => context.go('/home'),
           ),
-          title: Text(movie.title?? "Null"),
+          title: Text(provider1.movieDetails.title?? "Null"),
         ),
         body: SingleChildScrollView(
-          child: isLoading
+          child: provider1.isLoading
               ? Container(
                   height: size.height,
                   child: Center(
@@ -127,7 +130,7 @@ class _DetailsPageState extends State<DetailsPage> {
                             pageViewKey:
                                 PageStorageKey<String>('carousel_slider'),
                           ),
-                          items: slideItems,
+                          items: provider2.posters ?? [Image(image:NetworkImage('http://image.tmdb.org/t/p/original/jDdnDEGu3GiLtJwDXeL4hfFzmGv.jpg'),)],
                         ),
                       ),
                       SizedBox(height: 8.0),
@@ -141,21 +144,21 @@ class _DetailsPageState extends State<DetailsPage> {
                       ],),
                       SizedBox(height: 8.0,),
                       Text(
-                        "Tagline: ${movie.tagline}", //TODO: Make this id dynamic
+                        "Tagline: ${provider1.movieDetails.tagline}",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
                       ),
                       SizedBox(height: 8.0,),
                       Text(
-                        "Year of Release: ${movie.year ?? "Null"}",
+                        "Year of Release: ${provider1.movieDetails.year ?? "Null"}",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
                       ),
                       SizedBox(height: 8.0),
                       Text(
-                        "Movie ID: ${provider.id}", //TODO: Make this id dynamic
+                        "Age Rating: ${provider1.movieDetails.ageRating}",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
@@ -169,15 +172,16 @@ class _DetailsPageState extends State<DetailsPage> {
                         ),
                       SizedBox(height: 8.0),
                       Text(
-                        movie.description ?? "Null",
+                        provider1.movieDetails.description ?? "Null",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
                       ),
+                      SizedBox(height: 8.0),
                       InkWell(
                         onTap: () {
                           _launchInBrowser(Uri.parse(
-                              "https://www.youtube.com/watch?v=${movie.ytKey}" ?? "https://www.youtube.com/"));
+                              "https://www.youtube.com/watch?v=${provider1.movieDetails.ytKey}" ?? "https://www.youtube.com/"));
                         },
                         child: Text(
                           'Watch the trailer',

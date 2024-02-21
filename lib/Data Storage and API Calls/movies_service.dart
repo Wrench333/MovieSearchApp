@@ -27,8 +27,10 @@ class MovieAPI {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final length = data.length;
+        print(length);
         List<CurrentMovies> currentMovies = [];
-        for (int i = 0; i < 5; i++) { //TODO: Make this dynamic with movieAPI.length using provider
+        for (int i = 0; i <
+            length; i++) {
           currentMovies.add(CurrentMovies.fromJson(data, i));
         }
         print('Here is the response from the API: $data');
@@ -46,7 +48,7 @@ class MovieAPI {
     // to get movie specific details to build its respective page
     try {
       final response =
-          await http.get(Uri.parse(baseUrl + '?movieid=$id'), headers: {
+      await http.get(Uri.parse(baseUrl + '?movieid=$id'), headers: {
         "Type": "get-movie-details",
         "X-RapidAPI-Key": rapidApiKey,
         "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
@@ -55,15 +57,14 @@ class MovieAPI {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        final length = data.length;
-        print('$data');
+        print('Here is the response from the API: $data');
         return Movie.fromJson(data);
       } else {
         throw Exception(
-            'Failed to load movie details, status code: ${response.statusCode}');
+            'Failed to load movies list, status code: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to load movie details: $e');
+      throw Exception('Failed to load movies list: $e');
     }
   }
 
@@ -71,7 +72,7 @@ class MovieAPI {
     // to get movie specific details to build its respective page
     try {
       final response =
-          await http.get(Uri.parse(baseUrl + '?title=$title'), headers: {
+      await http.get(Uri.parse(baseUrl + '?title=$title'), headers: {
         "Type": "get-movies-by-title",
         "X-RapidAPI-Key": rapidApiKey,
         "X-RapidAPI-Host": "movies-tv-shows-database.p.rapidapi.com",
@@ -82,15 +83,17 @@ class MovieAPI {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final length = data.length;
+        print(length);
         List<MovieSearch> searchResults = [];
         print('$data');
-        for (int i =0;i<5;i++){ //TODO: Make this dynamic
-          searchResults.add(MovieSearch.fromJson(data,i));
+        for (int i = 0; i < length; i++) {
+          searchResults.add(MovieSearch.fromJson(data, i));
         }
         return searchResults;
       } else {
         throw Exception(
-            'Failed to load search results, status code: ${response.statusCode}');
+            'Failed to load search results, status code: ${response
+                .statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load search results: $e');
@@ -116,7 +119,8 @@ class MovieAPI {
         return Poster.fromJson(data);
       } else {
         throw Exception(
-            'Failed to load search results, status code: ${response.statusCode}');
+            'Failed to load search results, status code: ${response
+                .statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load search results: $e');

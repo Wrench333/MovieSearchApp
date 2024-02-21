@@ -1,21 +1,24 @@
 import 'package:flutter/cupertino.dart';
+import 'package:movie_search_app/Models/currentMovies_model.dart';
 
 class FavouriteProvider extends ChangeNotifier {
-  List<String> _titles = [];
-  List<String> get titles => _titles;
+  static List<CurrentMovies> _favmovies = [];
+  List<CurrentMovies> get favmovies => _favmovies;
 
-  void toggleFavourite(String title) {
-    final isExist = _titles.contains(title);
+  void toggleFavourite(CurrentMovies movie) {
+    final isExist = _favmovies.contains(movie);
+    print(isExist);
     if(isExist){
-      _titles.remove(title);
+      _favmovies.remove(movie);
     } else {
-      _titles.add(title);
+      _favmovies.add(movie);
     }
     notifyListeners();
   }
 
-  bool isExist(String title) {
-    final isExist = _titles.contains(title);
+  bool isExist(CurrentMovies movie) {
+    final isExist = _favmovies.contains(movie);
+    print(isExist);
     return isExist;
   }
 }

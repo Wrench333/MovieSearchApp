@@ -4,9 +4,9 @@ import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/favourite_pr
 import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/loading_provider.dart';
 import 'package:provider/provider.dart';
 import '../Data Storage and API Calls/apiKeys.dart';
+import '../Data Storage and API Calls/movieList_provider.dart';
 import '../Data Storage and API Calls/movies_service.dart';
-import '../Models/currentMovies_model.dart';
-import '../Models/movie_model.dart';
+import '../Data Storage and API Calls/searchResults_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,16 +19,17 @@ class _HomePageState extends State<HomePage> {
   final controller = TextEditingController();
   MovieAPI movieAPI = MovieAPI(
       rapidApiKey: rapidApiKey);
-  List<CurrentMovies> nowShowing = [];
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchMovies();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final provider = Provider.of<CurrentMovieProvider>(context,listen: false);
+      provider.getMovieDetails();
+    });
   }
 
-  Future<void> _fetchMovies() async {
+  /*Future<void> _fetchMovies() async {
     try {
       var result = await movieAPI.getCurrentMovies();
       print('Current Movies List API Response: $result');
@@ -48,13 +49,13 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
     }
-  }
+  }*/
 
   Future<void> _fetchSearchResults(String query) async {
     try {
       var result = await movieAPI.getSearchResults(query);
       print(
-          'Movie Search API Response: $result'); //TODO: Assign result to another variable so that its accessible where needed
+          'Movie Search API Response: $result');//TODO: Assign result to another variable so that its accessible where needed
     } catch (e) {
       print('Error in getting search results: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -67,13 +68,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final provider = Provider.of<IdProvider>(context);
+    final provider1 = Provider.of<CurrentMovieProvider>(context);
     final provider2 = Provider.of<FavouriteProvider>(context);
+    final provider3 = Provider.of<SearchProvider>(context);
+    var suggestions = provider1.movies;
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("Movie Browser"),
-          backgroundColor: Colors.blue,
+          title: Center(child: Text("Movie Browser",style: TextStyle(color: Colors.white,fontSize: 30.0,fontWeight: FontWeight.bold),)),
+          backgroundColor: Colors.red.withOpacity(1),
         ),
         body: Container(
           padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -84,22 +90,26 @@ class _HomePageState extends State<HomePage> {
               ),
               TextField(
                 controller: controller,
-                onChanged: _fetchSearchResults,
+                onChanged: (query) {
+                  provider3.getSearchResults(query);
+                  suggestions = provider3.searchResults;
+                },
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color.fromRGBO(65, 105, 225, 1),
+                  fillColor: Colors.white,
                   isDense: true,
                   hintText: 'Search',
                   hintStyle: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
+                    color: Colors.grey,
+                    fontSize: 20,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   ),
                 ),
               ),
-              isLoading
+              SizedBox(height: 8.0,),
+              provider1.isLoading
                   ? Expanded(
                       child: Center(
                         child: CircularProgressIndicator(
@@ -114,10 +124,11 @@ class _HomePageState extends State<HomePage> {
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2),
                         physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: nowShowing.length,
+                        itemCount: provider1.movies.length,
                         itemBuilder: (context, index) {
-                          final movie = nowShowing[index];
+                          final movie = provider1.movies[index];
                           return Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: GestureDetector(
@@ -126,13 +137,11 @@ class _HomePageState extends State<HomePage> {
                                     context.go('/details');
                                   },
                                   child: Container(
-                                    margin: const EdgeInsets.all(5.0),
-                                    height: 105,
-                                    padding: const EdgeInsets.fromLTRB(
-                                        23, 18, 8, 18),
+                                    margin: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,vertical: 20),
                                     decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(
-                                          52, 152, 219, 0.8),
+                                      color: Colors.red,
                                       borderRadius:
                                           BorderRadius.circular(17.36),
                                       boxShadow: const [
@@ -152,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                                         Text(
                                           '${movie.title}',
                                           style: const TextStyle(
-                                            fontSize: 18.0,
+                                            fontSize: 22.0,
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -182,12 +191,12 @@ class _HomePageState extends State<HomePage> {
                                             IconButton(
                                                 onPressed: () {
                                                   provider2
-                                                      .toggleFavourite(movie.title);
+                                                      .toggleFavourite(movie);
                                                 },
-                                                icon: provider2.isExist(movie.title)
+                                                icon: provider2.isExist(movie)
                                                     ? Icon(
                                                         Icons.favorite,
-                                                        color: Colors.red,
+                                                        color: Color.fromRGBO(202, 247, 226,1),
                                                       )
                                                     : Icon(
                                                         Icons.favorite_border,
@@ -208,10 +217,11 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        /*floatingActionButton: FloatingActionButton.extended(
+        floatingActionButton: FloatingActionButton.extended(
           onPressed: () => context.go('/fav'),
-          label: Text('Favourites'),
-        ),*/
+          label: Icon(Icons.favorite,color: Color.fromRGBO(202, 247, 226,1),),
+          backgroundColor: Colors.red,
+        ),
       ),
     );
   }
