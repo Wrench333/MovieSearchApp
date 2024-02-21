@@ -9,13 +9,14 @@ class FavouritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final provider = Provider.of<FavouriteProvider>(context);
     final provider2 =  Provider.of<IdProvider>(context);
     final favmovies = provider.favmovies;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(onPressed:() => context.go('/home'),icon: Icon(Icons.arrow_back_ios_new),),
+          leading: IconButton(onPressed:() => context.pop('/home'),icon: Icon(Icons.arrow_back_ios_new),),
           title: Text("Favourite Movies"),
           backgroundColor: Colors.red,
         ),
@@ -37,8 +38,9 @@ class FavouritePage extends StatelessWidget {
                     },
                     child: Container(
                       margin: const EdgeInsets.all(8.0),
+                      height: size.height/2,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20,vertical: 20),
+                          horizontal: 10.0,vertical: 8.0),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius:

@@ -138,8 +138,9 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(8.0),
+                                    height: size.height/2,
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,vertical: 20),
+                                        horizontal: 10.0,vertical: 8.0),
                                     decoration: BoxDecoration(
                                       color: Colors.red,
                                       borderRadius:
@@ -218,7 +219,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => context.go('/fav'),
+          onPressed: () => context.push('/fav'),
           label: Icon(Icons.favorite,color: Color.fromRGBO(202, 247, 226,1),),
           backgroundColor: Colors.red,
         ),
