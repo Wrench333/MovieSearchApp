@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                                 child: GestureDetector(
                                   onTap: () {
                                     provider.idUpdate(movie.id);
-                                    context.go('/details');
+                                    context.push('/details');
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(8.0),

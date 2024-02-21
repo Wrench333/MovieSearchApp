@@ -103,7 +103,7 @@ class _DetailsPageState extends State<DetailsPage> {
           backgroundColor: Colors.red,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new),
-            onPressed: () => context.go('/home'),
+            onPressed: () => context.pop('/home'),
           ),
           title: Text(provider1.movieDetails.title?? "Null"),
         ),
