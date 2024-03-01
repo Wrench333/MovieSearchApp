@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/favourite_provider.dart';
 import 'package:movie_search_app/Models/currentMovies_model.dart';
 import 'package:movie_search_app/UI/home_page.dart';
 
@@ -69,8 +70,4 @@ class MyApp extends StatelessWidget {
 
 final idStateProvider = StateProvider<String>((ref) {
   return '';
-});
-
-final favouriteStateProvider = StateProvider<List<CurrentMovies>>((ref) {
-  return [];
 });
