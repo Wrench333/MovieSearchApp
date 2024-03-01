@@ -72,7 +72,7 @@ class MovieAPI {
     }
   }
 
-  Future<List<MovieSearch>> getSearchResults(String title) async {
+  Future<List<CurrentMovies>> getSearchResults(String title) async {
     // to get movie specific details to build its respective page
     try {
       final response =
@@ -88,10 +88,10 @@ class MovieAPI {
         final Map<String, dynamic> data = json.decode(response.body);
         final length = data.length;
         print(length);
-        List<MovieSearch> searchResults = [];
+        List<CurrentMovies> searchResults = [];
         print('$data');
         for (int i = 0; i < length; i++) {
-          searchResults.add(MovieSearch.fromJson(data, i));
+          searchResults.add(MovieSearch.fromJson(data, i).toCurrentMovies);
         }
         return searchResults;
       } else {

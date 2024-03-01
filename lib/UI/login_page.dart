@@ -39,9 +39,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 minimumSize: Size(double.infinity, size.height/12),
               ),
               icon: FaIcon(FontAwesomeIcons.google,color: Colors.red,),
-              onPressed: () {
+              onPressed: () async {
                 print('Button Pressed');
-                ref.watch(googleSignInProvider);
+                await ref.watch(googleSignInProvider);
                 context.go('/mediator');
               },
               label: Padding(

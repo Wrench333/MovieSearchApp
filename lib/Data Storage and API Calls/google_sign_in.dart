@@ -5,12 +5,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 final GoogleLogin = Provider<GoogleSignInProvider>((ref) => GoogleSignInProvider());
 
-final googleSignInProvider = StateProvider<Future>((ref) async {
+final googleSignInProvider = FutureProvider<void>((ref) async {
   ref.watch(GoogleLogin).googleLogin();
   return ;
 });
 
-final googleSignOutProvider = StateProvider<Future>((ref) async {
+final googleSignOutProvider = FutureProvider<void>((ref) async {
   ref.watch(GoogleLogin).logout();
   return ;
 });
@@ -21,7 +21,7 @@ class GoogleSignInProvider{
   GoogleSignInAccount? _user;
   GoogleSignInAccount get user => _user!;
 
-  Future googleLogin() async {
+  Future<void> googleLogin() async {
     try {
       print('Login Process Started');
       final googleUser = await googleSignIn.signIn();
@@ -42,7 +42,7 @@ class GoogleSignInProvider{
     }
   }
 
-  Future logout() async {
+  Future<void> logout() async {
     try {
       await googleSignIn.disconnect();
       await FirebaseAuth.instance.signOut();

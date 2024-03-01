@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
+import 'package:movie_search_app/Models/currentMovies_model.dart';
+import 'package:movie_search_app/Models/movie_model.dart';
+
 class MovieSearch {
   String title;
-  int year;
+  String year;
   String id;
 
   MovieSearch({
@@ -12,8 +16,12 @@ class MovieSearch {
   factory MovieSearch.fromJson(Map<String, dynamic> json,int i) {
     return MovieSearch(
       title: json['movie_results'][i]['title'],
-      year: json['movie_results'][i]['year'],
+      year: json['movie_results'][i]['year'].toString(),
       id: json['movie_results'][i]['imdb_id'],
     );
   }
+}
+
+extension MovieSearchExtension on MovieSearch{
+  CurrentMovies get toCurrentMovies => CurrentMovies(title: this.title, year: this.year, id: this.id);
 }

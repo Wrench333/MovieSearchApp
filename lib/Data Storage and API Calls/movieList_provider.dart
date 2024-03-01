@@ -8,19 +8,18 @@ final MovieListProvider = FutureProvider<List<CurrentMovies>>((ref) async {
   return ref.watch(ApiCall).getCurrentMovies();
 });
 
-/*class CurrentMovieProvider extends ChangeNotifier {
+final currentStateProvider = StateNotifierProvider<CurrentMovieProvider, List<CurrentMovies>>(
+        (ref) => CurrentMovieProvider([CurrentMovies(title: "", year: "", id: "")]));
+
+class CurrentMovieProvider extends StateNotifier<List<CurrentMovies>> {
+  CurrentMovieProvider(super.state);
+
   final _service = MovieAPI(rapidApiKey: rapidApiKey);
-  bool isLoading = false;
-  List<dynamic> _movies = [];
-  List<dynamic> get movies => _movies;
+  List<CurrentMovies> _movies = [];
+  List<CurrentMovies> get movies => _movies;
 
   Future<void> getMovieDetails() async{
-    isLoading = true;
-    notifyListeners();
-
     final response = await _service.getCurrentMovies();
     _movies = response;
-    isLoading = false;
-    notifyListeners();
   }
-}*/
+}

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/google_sign_in.dart';
 import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/movieList_provider.dart';
+import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/searchResults_provider.dart';
+import 'package:movie_search_app/Models/currentMovies_model.dart';
 import 'package:movie_search_app/main.dart';
 import '../Data Storage and API Calls/apiKeys.dart';
 import '../Data Storage and API Calls/favourite_provider.dart';
@@ -71,7 +73,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     Size size = MediaQuery.of(context).size;
     final user = FirebaseAuth.instance.currentUser;
     final favmovies = ref.watch(favouriteStateProvider);
-    final _data = ref.watch(MovieListProvider);
+    var _data = ref.watch(MovieListProvider);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -137,8 +139,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                         TextButton(
                           child: Text("Logout"),
                           onPressed: () {
-                            ref.watch(googleSignOutProvider);
                             context.pop();
+                            ref.watch(googleSignOutProvider);
                           },
                         ),
                       ],
@@ -159,7 +161,12 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               TextField(
                 controller: controller,
-                onChanged: (query) {
+                onSubmitted: (query) {
+                  ref.read(searchTitleProvider.notifier).state = query;
+                  if(query != ""){
+                    _data = ref.watch(SearchResultProvider);
+                    print("_data updated: ${_data}");
+                  }
                   /*provider3.getSearchResults(query);
                     suggestions = provider3.searchResults;*/
                 },
