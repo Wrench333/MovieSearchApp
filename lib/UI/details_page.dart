@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Data Storage and API Calls/apiKeys.dart';
-import '../Data Storage and API Calls/loading_provider.dart';
 import '../Data Storage and API Calls/movieDetails_provider.dart';
 import '../Data Storage and API Calls/moviePosters_provider.dart';
 import '../Data Storage and API Calls/movies_service.dart';
 
-class DetailsPage extends StatefulWidget {
+class DetailsPage extends ConsumerStatefulWidget {
   const DetailsPage({super.key});
 
   @override
-  State<DetailsPage> createState() => _DetailsPageState();
+  ConsumerState<DetailsPage> createState() => _DetailsPageState();
 }
 
-class _DetailsPageState extends State<DetailsPage> {
-  MovieAPI movieAPI = MovieAPI(
-      rapidApiKey: rapidApiKey);
+class _DetailsPageState extends ConsumerState<DetailsPage> {
+  MovieAPI movieAPI = MovieAPI(rapidApiKey: rapidApiKey);
+
   /*Movie movie = Movie(
       title: '',
       tagline: '',
@@ -34,13 +33,13 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    /*WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final provider = Provider.of<IdProvider>(context,listen: false);
       final provider1 = Provider.of<MovieProvider>(context,listen: false);
       final provider2 = Provider.of<MoviePostersProvider>(context,listen: false);
       provider1.getMovieDetails(provider.id);
       provider2.getMoviePosters(provider.id);
-    });
+    });*/
   }
 
   /*Future<void> _fetchMovieDetails(String id) async {
@@ -95,8 +94,10 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final provider1 = Provider.of<MovieProvider>(context);
-    final provider2 = Provider.of<MoviePostersProvider>(context);
+    final _data1 = ref.watch(MovieDetailsProvider);
+    final _data2 = ref.watch(MoviePosterProvider);
+    /*final provider1 = Provider.of<MovieProvider>(context);
+    final provider2 = Provider.of<MoviePostersProvider>(context);*/
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -105,60 +106,98 @@ class _DetailsPageState extends State<DetailsPage> {
             icon: Icon(Icons.arrow_back_ios_new),
             onPressed: () => context.pop('/home'),
           ),
-          title: Text(provider1.movieDetails.title?? "Null"),
+          title: _data1.when(
+            data: (movieDetails) {
+              return Text(movieDetails.title ?? "Null");
+            },
+            error: (e, st) {
+              return Text("Error:$e");
+            },
+            loading: () => Text("Movie"),
+          ),
         ),
-        body: SingleChildScrollView(
-          child: provider1.isLoading
-              ? Container(
-                  height: size.height,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                    ),
-                  ),
-                )
-              : Padding(
+        body: Container(
+          height: size.height,
+          child: SingleChildScrollView(
+            child: _data1.when(
+              data: (movieDetails) {
+                return Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        child: CarouselSlider(
-                          options: CarouselOptions(
-                            aspectRatio: 2.0,
-                            enlargeCenterPage: true,
-                            pageViewKey:
-                                PageStorageKey<String>('carousel_slider'),
+                      _data2.when(
+                        data: (posters) {
+                          return Container(
+                            child: CarouselSlider(
+                              options: CarouselOptions(
+                                aspectRatio: 2.0,
+                                enlargeCenterPage: true,
+                                pageViewKey:
+                                    PageStorageKey<String>('carousel_slider'),
+                              ),
+                              items: posters ??
+                                  [
+                                    Image(
+                                      image: NetworkImage(
+                                          'http://image.tmdb.org/t/p/original/jDdnDEGu3GiLtJwDXeL4hfFzmGv.jpg'),
+                                    )
+                                  ],
+                            ),
+                          );
+                        },
+                        error: (e, st) {
+                          return Text("Error:$e");
+                        },
+                        loading: () {return Container(height: size.width/2,child: Text("Loading wait da"),);}
+                      ),
+                      SizedBox(height: 8.0),
+                      Row(
+                        children: [
+                          Text("Rating:"),
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow,
                           ),
-                          items: provider2.posters ?? [Image(image:NetworkImage('http://image.tmdb.org/t/p/original/jDdnDEGu3GiLtJwDXeL4hfFzmGv.jpg'),)],
-                        ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8.0),
-                      Row(children: [
-                        Text("Rating:"),
-                        Icon(Icons.star,color: Colors.yellow,),
-                        Icon(Icons.star,color: Colors.yellow,),
-                        Icon(Icons.star,color: Colors.yellow,),
-                        Icon(Icons.star,color: Colors.yellow,),
-                        Icon(Icons.star,color: Colors.yellow,),
-                      ],),
-                      SizedBox(height: 8.0,),
+                      SizedBox(
+                        height: 8.0,
+                      ),
                       Text(
-                        "Tagline: ${provider1.movieDetails.tagline}",
+                        "Tagline: ${movieDetails.tagline}",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
                       ),
-                      SizedBox(height: 8.0,),
+                      SizedBox(
+                        height: 8.0,
+                      ),
                       Text(
-                        "Year of Release: ${provider1.movieDetails.year ?? "Null"}",
+                        "Year of Release: ${movieDetails.year ?? "Null"}",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
                       ),
                       SizedBox(height: 8.0),
                       Text(
-                        "Age Rating: ${provider1.movieDetails.ageRating}",
+                        "Age Rating: ${movieDetails.ageRating}",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
@@ -169,10 +208,10 @@ class _DetailsPageState extends State<DetailsPage> {
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
-                        ),
+                      ),
                       SizedBox(height: 8.0),
                       Text(
-                        provider1.movieDetails.description ?? "Null",
+                        movieDetails.description ?? "Null",
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
@@ -181,7 +220,8 @@ class _DetailsPageState extends State<DetailsPage> {
                       InkWell(
                         onTap: () {
                           _launchInBrowser(Uri.parse(
-                              "https://www.youtube.com/watch?v=${provider1.movieDetails.ytKey}" ?? "https://www.youtube.com/"));
+                              "https://www.youtube.com/watch?v=${movieDetails.ytKey}" ??
+                                  "https://www.youtube.com/"));
                         },
                         child: Text(
                           'Watch the trailer',
@@ -191,7 +231,18 @@ class _DetailsPageState extends State<DetailsPage> {
                       ),
                     ],
                   ),
+                );
+              },
+              error: (e, st) {
+                return Text("Something went wrong:$e");
+              },
+              loading: () => Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                 ),
+              ),
+            ),
+          ),
         ),
       ),
     );

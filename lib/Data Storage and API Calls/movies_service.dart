@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import '../Models/currentMovies_model.dart';
 import '../Models/movieSearch_model.dart';
 import '../Models/movie_model.dart';
 import '../Models/poster_model.dart';
+import 'apiKeys.dart';
+
+final ApiCall = Provider<MovieAPI>((ref) => MovieAPI(rapidApiKey: rapidApiKey));
 
 class MovieAPI {
   final String rapidApiKey;

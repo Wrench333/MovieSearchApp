@@ -1,27 +1,39 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/favourite_provider.dart';
-import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/loading_provider.dart';
-import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/moviePosters_provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:movie_search_app/Models/currentMovies_model.dart';
 import 'package:movie_search_app/UI/home_page.dart';
-import 'package:provider/provider.dart';
 
-import 'Data Storage and API Calls/length_provider.dart';
-import 'Data Storage and API Calls/movieDetails_provider.dart';
-import 'Data Storage and API Calls/movieList_provider.dart';
-import 'Data Storage and API Calls/searchResults_provider.dart';
+import 'Data Storage and API Calls/firebase_options.dart';
+import 'Logic/mediator.dart';
 import 'UI/details_page.dart';
 import 'UI/favourite_page.dart';
+import 'UI/login_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print("Failed to initialize Firebase App: $e");
+  }
+  runApp(ProviderScope(child: MyApp()));
 }
 
 final GoRouter router = GoRouter(routes: [
   GoRoute(
     path: '/',
-    builder: (context, state) => Home(),
+    builder: (context, state) => LoginPage(),
+  ),
+  GoRoute(
+    path: '/mediator',
+    builder: (context, state) => Mediator(),
   ),
   GoRoute(
     path: '/home',
@@ -42,46 +54,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => IdProvider()),
-        ChangeNotifierProvider(create: (context) => FavouriteProvider()),
-        ChangeNotifierProvider(create: (context) => LengthProvider()),
-        ChangeNotifierProvider(create: (context) => MovieProvider()),
-        ChangeNotifierProvider(create: (context) => CurrentMovieProvider()),
-        ChangeNotifierProvider(create: (context) => MoviePostersProvider()),
-        ChangeNotifierProvider(create: (context) => SearchProvider()),
-      ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'The Movie Searcher',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        routerConfig: router,
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'The Movie Searcher',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
+      routerConfig: router,
     );
   }
 }
 
-class Home extends StatefulWidget {
-  const Home({super.key});
 
-  @override
-  State<Home> createState() => _HomeState();
-}
+final idStateProvider = StateProvider<String>((ref) {
+  return '';
+});
 
-class _HomeState extends State<Home> {
-  void initState() {
-    super.initState();
-    Timer(Duration(seconds: 2), () => context.go('/home'));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.white,
-        child: FlutterLogo(size: MediaQuery.of(context).size.height));
-  }
-}
+final favouriteStateProvider = StateProvider<List<CurrentMovies>>((ref) {
+  return [];
+});

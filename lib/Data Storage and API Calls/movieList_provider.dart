@@ -1,9 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/movies_service.dart';
 import 'package:movie_search_app/Models/currentMovies_model.dart';
 import 'apiKeys.dart';
 
-class CurrentMovieProvider extends ChangeNotifier {
+final MovieListProvider = FutureProvider<List<CurrentMovies>>((ref) async {
+  return ref.watch(ApiCall).getCurrentMovies();
+});
+
+/*class CurrentMovieProvider extends ChangeNotifier {
   final _service = MovieAPI(rapidApiKey: rapidApiKey);
   bool isLoading = false;
   List<dynamic> _movies = [];
@@ -18,4 +23,4 @@ class CurrentMovieProvider extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
-}
+}*/

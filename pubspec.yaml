@@ -40,6 +40,12 @@ dependencies:
   go_router: ^13.2.0
   url_launcher: ^6.2.4
   provider: ^6.1.1
+  flutter_riverpod: ^2.4.10
+  firebase_auth: ^4.17.6
+  firebase_core: ^2.25.5
+  google_sign_in: ^6.2.1
+  font_awesome_flutter: ^10.7.0
+
 
 dev_dependencies:
   flutter_test:

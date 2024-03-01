@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:movie_search_app/Models/currentMovies_model.dart';
 
-class FavouriteProvider extends ChangeNotifier {
+/*class FavouriteProvider extends ChangeNotifier {
   static List<CurrentMovies> _favmovies = [];
   List<CurrentMovies> get favmovies => _favmovies;
 
@@ -21,4 +21,4 @@ class FavouriteProvider extends ChangeNotifier {
     print(isExist);
     return isExist;
   }
-}
+}*/

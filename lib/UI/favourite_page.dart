@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_search_app/Data%20Storage%20and%20API%20Calls/favourite_provider.dart';
+import 'package:movie_search_app/main.dart';
 import 'package:provider/provider.dart';
 import '../Data Storage and API Calls/loading_provider.dart';
 
-class FavouritePage extends StatelessWidget {
-  const FavouritePage({super.key});
+class FavouritePage extends ConsumerWidget {
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     Size size = MediaQuery.of(context).size;
-    final provider = Provider.of<FavouriteProvider>(context);
-    final provider2 =  Provider.of<IdProvider>(context);
-    final favmovies = provider.favmovies;
+    final favmovies = ref.watch(favouriteStateProvider);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -33,8 +32,8 @@ class FavouritePage extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      provider2.idUpdate(movie.id);
-                      context.go('/details');
+                      ref.read(idStateProvider.notifier).state = movie.id ;
+                      context.push('/details');
                     },
                     child: Container(
                       margin: const EdgeInsets.all(8.0),
@@ -88,10 +87,16 @@ class FavouritePage extends StatelessWidget {
                           ),
                           IconButton(
                               onPressed: () {
-                                provider
-                                    .toggleFavourite(movie);
+                                final _favmovies = ref.read(favouriteStateProvider);
+                                final isExist = _favmovies.contains(movie);
+                                print(isExist);
+                                if(isExist){
+                                  _favmovies.remove(movie);
+                                } else {
+                                  _favmovies.add(movie);
+                                }
                               },
-                              icon: provider.isExist(movie)
+                              icon: favmovies.contains(movie)
                                   ? Icon(
                                 Icons.favorite,
                                 color: Color.fromRGBO(202, 247, 226,1),
